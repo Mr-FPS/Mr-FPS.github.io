@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Mr-FPS - برنامه‌نویس وب، طراح گرافیک و موشن‌گرافیک">
+<title>Mr-FPS</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#07070f;
+  --card:#ffffff08;
+  --card-h:#ffffff0d;
+  --border:#ffffff10;
+  --border-a:#a855f740;
+  --text:#f1f5f9;
+  --muted:#64748b;
+  --soft:#94a3b8;
+  --p:#a855f7;
+  --pl:#c084fc;
+  --c:#22d3ee;
+  --am:#f59e0b;
+  --r:14px;
+  --rs:10px;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Vazirmatn',sans-serif;
+  direction:rtl;
+  line-height:1.75;
+  overflow-x:hidden;
+}
+
+/* BG orbs */
+.orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0}
+.o1{width:520px;height:520px;background:#a855f718;top:-120px;right:-120px}
+.o2{width:400px;height:400px;background:#22d3ee10;bottom:15%;left:-100px}
+.o3{width:280px;height:280px;background:#f59e0b0a;bottom:-60px;right:30%}
+
+/* Nav */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:14px 40px;display:flex;align-items:center;justify-content:space-between;
+  transition:all .3s ease;
+}
+nav.s{background:#07070feb;backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nlogo{
+  font-weight:800;font-size:1.1rem;
+  background:linear-gradient(135deg,#a855f7,#22d3ee);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.nlinks{display:flex;gap:4px;list-style:none}
+.nlinks a{
+  color:var(--soft);text-decoration:none;font-size:.88rem;
+  padding:5px 13px;border-radius:20px;transition:all .2s;
+}
+.nlinks a:hover{color:var(--text);background:var(--card)}
+
+/* Hero */
+.hero{
+  position:relative;z-index:1;min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;padding:110px 20px 80px;
+}
+.hi{max-width:680px}
+.hbadge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:#a855f715;border:1px solid #a855f730;color:var(--pl);
+  padding:5px 15px;border-radius:20px;font-size:.82rem;margin-bottom:26px;
+  animation:fid .6s ease both;
+}
+.bdot{width:7px;height:7px;background:var(--p);border-radius:50%;animation:pulse 2s infinite}
+.hav{
+  width:130px;height:130px;border-radius:50%;
+  margin:0 auto 26px;position:relative;
+  animation:fid .6s .1s ease both;
+}
+.hav img{
+  width:100%;height:100%;object-fit:cover;border-radius:50%;
+  border:3px solid transparent;
+  background:linear-gradient(var(--bg),var(--bg)) padding-box,
+  linear-gradient(135deg,#a855f7,#22d3ee) border-box;
+}
+.havinit{
+  width:100%;height:100%;border-radius:50%;
+  background:linear-gradient(135deg,#a855f720,#22d3ee20);
+  border:3px solid transparent;
+  background-clip:padding-box;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.8rem;font-weight:900;
+  background:linear-gradient(135deg,#a855f7,#22d3ee);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hring{
+  position:absolute;inset:-8px;border-radius:50%;
+  border:2px solid transparent;
+  border-top-color:var(--p);border-right-color:var(--c);
+  animation:spin 4s linear infinite;
+}
+.hname{
+  font-size:clamp(2.4rem,6vw,4.2rem);font-weight:900;
+  line-height:1.1;margin-bottom:10px;
+  background:linear-gradient(135deg,#f1f5f9 0%,#94a3b8 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:fid .7s .2s ease both;
+}
+.htitle{
+  font-size:1.1rem;color:var(--soft);margin-bottom:30px;
+  animation:fid .7s .3s ease both;min-height:1.8em;
+}
+.htitle span{color:var(--pl);font-weight:600}
+.hcontacts{
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
+  margin-bottom:24px;animation:fiu .7s .4s ease both;
+}
+.hc{
+  display:flex;align-items:center;gap:7px;color:var(--soft);font-size:.87rem;
+  background:var(--card);border:1px solid var(--border);
+  padding:7px 14px;border-radius:30px;transition:all .2s;text-decoration:none;
+}
+.hc:hover{color:var(--text);border-color:var(--border-a)}
+.hc svg{color:var(--p);flex-shrink:0}
+.hsoc{display:flex;gap:10px;justify-content:center;animation:fiu .7s .5s ease both}
+.sbtn{
+  display:flex;align-items:center;gap:7px;padding:9px 18px;
+  border-radius:30px;text-decoration:none;font-size:.88rem;font-weight:600;transition:all .25s;
+}
+.stg{background:#0088cc18;border:1px solid #0088cc30;color:#48b3e8}
+.stg:hover{background:#0088cc28;transform:translateY(-2px)}
+.swp{background:#25d36618;border:1px solid #25d36630;color:#4ade80}
+.swp:hover{background:#25d36628;transform:translateY(-2px)}
+.sarrow{
+  position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+  color:var(--muted);animation:bounce 2s infinite;
+}
+
+/* Layout */
+.container{max-width:1060px;margin:0 auto;padding:0 22px}
+section{position:relative;z-index:1;padding:76px 0}
+.sh{margin-bottom:44px}
+.stag{font-size:.78rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--p);margin-bottom:7px}
+.stitle{font-size:clamp(1.7rem,4vw,2.3rem);font-weight:900;color:var(--text)}
+.sline{width:46px;height:3px;background:linear-gradient(90deg,#a855f7,#22d3ee);border-radius:2px;margin-top:10px}
+
+/* Cards */
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:26px;transition:all .3s;position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,#a855f708,transparent);
+  opacity:0;transition:opacity .3s;
+}
+.card:hover{border-color:var(--border-a);box-shadow:0 0 40px #a855f715;transform:translateY(-2px)}
+.card:hover::before{opacity:1}
+
+/* About */
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+.atext{font-size:.97rem;color:var(--soft);line-height:1.95}
+.atext strong{color:var(--pl);font-weight:700}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.stat{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--rs);padding:18px;text-align:center;transition:all .3s;
+}
+.stat:hover{border-color:var(--border-a)}
+.snum{
+  font-size:2rem;font-weight:900;line-height:1;margin-bottom:5px;
+  background:linear-gradient(135deg,#a855f7,#22d3ee);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.slbl{font-size:.8rem;color:var(--muted)}
+
+/* Skills */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.si{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--rs);padding:18px;transition:all .3s;
+}
+.si:hover{border-color:var(--border-a)}
+.siico{font-size:1.3rem;margin-bottom:7px}
+.sitop{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.siname{font-weight:600;font-size:.93rem}
+.sipct{font-size:.82rem;font-weight:700;color:var(--pl)}
+.sbar{height:5px;background:#ffffff0a;border-radius:3px;overflow:hidden}
+.sfill{height:100%;border-radius:3px;width:0;transition:width 1.3s cubic-bezier(.4,0,.2,1)}
+.sw{background:linear-gradient(90deg,#a855f7,#22d3ee)}
+.sd{background:linear-gradient(90deg,#f59e0b,#ef4444)}
+
+/* Timeline */
+.tl{position:relative;padding-right:30px}
+.tl::before{
+  content:'';position:absolute;right:0;top:0;bottom:0;
+  width:2px;background:linear-gradient(to bottom,#a855f7,transparent);
+}
+.tli{
+  position:relative;margin-bottom:38px;
+  opacity:0;transform:translateX(18px);transition:all .6s ease;
+}
+.tli.v{opacity:1;transform:translateX(0)}
+.tli:last-child{margin-bottom:0}
+.tldot{
+  position:absolute;right:-37px;top:7px;
+  width:13px;height:13px;border-radius:50%;
+  background:var(--p);border:3px solid var(--bg);
+  box-shadow:0 0 12px #a855f766;
+}
+.tlbadge{
+  display:inline-block;font-size:.77rem;color:var(--pl);
+  background:#a855f712;border:1px solid #a855f722;
+  padding:3px 9px;border-radius:20px;margin-bottom:6px;
+}
+.tlyear{font-size:.78rem;color:var(--muted);margin-bottom:4px}
+.tltitle{font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:8px}
+.tldesc{font-size:.88rem;color:var(--soft);line-height:1.85}
+
+/* Projects */
+.pgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.proj{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--rs);padding:20px;transition:all .3s;
+}
+.proj:hover{border-color:var(--border-a);transform:translateY(-2px)}
+.pico{
+  width:42px;height:42px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;margin-bottom:12px;
+}
+.pw{background:#a855f720}
+.pg{background:#22d3ee18}
+.pm{background:#f59e0b18}
+.ptitle{font-weight:700;font-size:.95rem;margin-bottom:6px}
+.pdesc{font-size:.83rem;color:var(--soft);line-height:1.8}
+.ptag{
+  display:inline-block;font-size:.72rem;
+  background:#ffffff08;border:1px solid #ffffff10;
+  color:var(--muted);padding:2px 8px;border-radius:10px;margin:6px 4px 0 0;
+}
+
+/* Languages */
+.lgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.lcard{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--rs);padding:22px;
+}
+.lname{font-weight:700;font-size:1.05rem;margin-bottom:4px}
+.llvl{font-size:.82rem;color:var(--muted);margin-bottom:13px}
+.ldots{display:flex;gap:5px}
+.ldot{flex:1;height:5px;border-radius:3px;background:#ffffff0a;transition:background .3s .2s}
+.ldot.f{background:linear-gradient(90deg,#a855f7,#22d3ee)}
+
+/* Divider */
+hr.d{border:none;height:1px;background:var(--border)}
+
+/* Fade on scroll */
+.fi{opacity:0;transform:translateY(22px);transition:all .7s ease}
+.fi.v{opacity:1;transform:translateY(0)}
+
+/* Footer */
+footer{
+  position:relative;z-index:1;text-align:center;
+  padding:36px 22px;border-top:1px solid var(--border);
+  color:var(--muted);font-size:.88rem;
+}
+footer a{color:var(--pl);text-decoration:none}
+
+/* Animations */
+@keyframes fid{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fiu{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.84)}}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+
+/* Responsive */
+@media(max-width:900px){
+  .pgrid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:700px){
+  nav{padding:12px 16px}
+  .nlinks{display:none}
+  .agrid{grid-template-columns:1fr}
+  .sgrid{grid-template-columns:1fr}
+  .lgrid{grid-template-columns:1fr}
+  .pgrid{grid-template-columns:1fr}
+  section{padding:54px 0}
+  .hcontacts{flex-direction:column;align-items:center}
+}
+</style>
+</head>
+<body>
+
+<div class="orb o1"></div>
+<div class="orb o2"></div>
+<div class="orb o3"></div>
+
+<!-- Nav -->
+<nav id="nav">
+  <div class="nlogo">Mr-FPS</div>
+  <ul class="nlinks">
+    <li><a href="#about">درباره من</a></li>
+    <li><a href="#skills">مهارت‌ها</a></li>
+    <li><a href="#achievements">افتخارات</a></li>
+    <li><a href="#projects">پروژه‌ها</a></li>
+    <li><a href="#languages">زبان‌ها</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<section class="hero" id="home">
+  <div class="hi">
+    <div class="hbadge"><div class="bdot"></div>آماده‌ی همکاری</div>
+
+    <div class="hav">
+      <div class="havinit" id="avatar-wrap">
+        <div id="avatar-init">M</div>
+      </div>
+      <div class="hring"></div>
+    </div>
+
+    <h1 class="hname">Mr-FPS</h1>
+    <p class="htitle"><span id="typed"></span><span id="cursor" style="border-right:2px solid #a855f7;margin-right:2px;animation:pulse 1s infinite"> </span></p>
+
+    <div class="hcontacts">
+      
+    </div>
+
+    <div class="hsoc">
+
+    </div>
+  </div>
+
+  <div class="sarrow">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </div>
+</section>
+
+<hr class="d">
+
+<!-- About -->
+<section id="about">
+  <div class="container">
+    <div class="sh fi">
+      <div class="stag">// درباره من</div>
+      <h2 class="stitle">درباره من</h2>
+      <div class="sline"></div>
+    </div>
+    <div class="agrid fi">
+      <div class="card">
+        <p class="atext">
+          سلام! من <strong>Mr-FPS</strong> هستم، برنامه‌نویس وب و طراح گرافیک با علاقه ویژه به موشن‌گرافیک، ویرایش عکس و فیلم و تولید محتوای خلاقانه.
+        </p>
+        <br>
+        <p class="atext">
+          در کنار برنامه‌نویسی، تجربه‌هایی در ساخت پادکست، نگارش نمایشنامه و تولید آثار چندرسانه‌ای دارم. هدفم ترکیب خلاقیت با تکنولوژی برای ساخت پروژه‌های ماندگار است.
+        </p>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="snum">۵+</div>
+          <div class="slbl">زبان برنامه‌نویسی</div>
+        </div>
+        <div class="stat">
+          <div class="snum">۳</div>
+          <div class="slbl">جایزه جشنواره</div>
+        </div>
+        <div class="stat">
+          <div class="snum">۲</div>
+          <div class="slbl">زبان فعال</div>
+        </div>
+        <div class="stat">
+          <div class="snum">۳+</div>
+          <div class="slbl">سال تجربه</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="d">
+
+<!-- Skills -->
+<section id="skills">
+  <div class="container">
+    <div class="sh fi">
+      <div class="stag">// مهارت‌ها</div>
+      <h2 class="stitle">مهارت‌های فنی</h2>
+      <div class="sline"></div>
+    </div>
+    <div class="sgrid fi">
+      <div class="si">
+        <div class="siico">🌐</div>
+        <div class="sitop"><span class="siname">HTML</span><span class="sipct">۸۹٪</span></div>
+        <div class="sbar"><div class="sfill sw" data-w="89"></div></div>
+      </div>
+      <div class="si">
+        <div class="siico">🎨</div>
+        <div class="sitop"><span class="siname">CSS</span><span class="sipct">۸۹٪</span></div>
+        <div class="sbar"><div class="sfill sw" data-w="89"></div></div>
+      </div>
+      <div class="si">
+        <div class="siico">⚡</div>
+        <div class="sitop"><span class="siname">JavaScript</span><span class="sipct">۶۵٪</span></div>
+        <div class="sbar"><div class="sfill sw" data-w="65"></div></div>
+      </div>
+      <div class="si">
+        <div class="siico">🐘</div>
+        <div class="sitop"><span class="siname">PHP</span><span class="sipct">۸۷٪</span></div>
+        <div class="sbar"><div class="sfill sw" data-w="87"></div></div>
+      </div>
+      <div class="si">
+        <div class="siico">🗄️</div>
+        <div class="sitop"><span class="siname">MySQL</span><span class="sipct">۸۰٪</span></div>
+        <div class="sbar"><div class="sfill sw" data-w="80"></div></div>
+      </div>
+      <div class="si">
+        <div class="siico">📝</div>
+        <div class="sitop"><span class="siname">WordPress</span><span class="sipct">۷۰٪</span></div>
+        <div class="sbar"><div class="sfill sw" data-w="70"></div></div>
+      </div>
+      <div class="si">
+        <div class="siico">🖼️</div>
+        <div class="sitop"><span class="siname">Adobe Photoshop</span><span class="sipct">۶۳٪</span></div>
+        <div class="sbar"><div class="sfill sd" data-w="63"></div></div>
+      </div>
+      <div class="si">
+        <div class="siico">🎵</div>
+        <div class="sitop"><span class="siname">Adobe Audition</span><span class="sipct">۹۰٪</span></div>
+        <div class="sbar"><div class="sfill sd" data-w="90"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="d">
+
+<!-- Achievements -->
+<section id="achievements">
+  <div class="container">
+    <div class="sh fi">
+      <div class="stag">// افتخارات</div>
+      <h2 class="stitle">افتخارات و دستاوردها</h2>
+      <div class="sline"></div>
+    </div>
+    <div class="card fi">
+      <div class="tl">
+        <div class="tli">
+          <div class="tldot"></div>
+          <div class="tlbadge">جشنواره نوجوان سالم</div>
+          <div class="tlyear">۱۴۰۲</div>
+          <div class="tltitle">🎬 موشن‌گرافیک «چهارشنبه‌سوری»</div>
+          <p class="tldesc">طراحی و اجرای کامل یک موشن‌گرافیک از آیین باستانی چهارشنبه‌سوری؛ از ایده‌پردازی تا تدوین نهایی. بازآفرینی حال‌وهوای این جشن ایرانی با حرکت، رنگ و نورپردازی.</p>
+        </div>
+        <div class="tli">
+          <div class="tldot"></div>
+          <div class="tlbadge">جشنواره نوجوان سالم</div>
+          <div class="tlyear">۱۴۰۳</div>
+          <div class="tltitle">🎭 کارگردانی تئاتر</div>
+          <p class="tldesc">کارگردانی و اجرای نمایشنامه‌ای با موضوع بهداشت روان؛ از ایده‌پردازی و نگارش تا طراحی صحنه. تلاشی برای آگاهی‌بخشی از طریق هنر نمایشی.</p>
+        </div>
+        <div class="tli">
+          <div class="tldot"></div>
+          <div class="tlbadge">مسابقه ادبی</div>
+          <div class="tlyear">۱۴۰۴</div>
+          <div class="tltitle">✍️ داستان کوتاه</div>
+          <p class="tldesc">کسب رتبه در مسابقه ادبی با داستانی که بر احساس و ارتباط انسانی تمرکز داشت. روایت لحظه‌هایی از زندگی که معمولاً نادیده گرفته می‌شوند.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="d">
+
+<!-- Projects -->
+<section id="projects">
+  <div class="container">
+    <div class="sh fi">
+      <div class="stag">// پروژه‌ها</div>
+      <h2 class="stitle">نمونه پروژه‌ها</h2>
+      <div class="sline"></div>
+    </div>
+    <div class="pgrid fi">
+      <div class="proj">
+        <div class="pico pw">💻</div>
+        <div class="ptitle">سایت شخصی</div>
+        <p class="pdesc">طراحی و توسعه وب‌سایت شخصی با امکانات کامل و بخش مدیریت</p>
+        <span class="ptag">HTML</span><span class="ptag">CSS</span><span class="ptag">JS</span><span class="ptag">PHP</span>
+      </div>
+      <div class="proj">
+        <div class="pico pg">🎬</div>
+        <div class="ptitle">موشن‌گرافیک‌ها</div>
+        <p class="pdesc">ساخت موشن‌گرافیک‌های متعدد با موضوعات فرهنگی و اجتماعی</p>
+        <span class="ptag">After Effects</span><span class="ptag">Premiere</span>
+      </div>
+      <div class="proj">
+        <div class="pico pm">🎙️</div>
+        <div class="ptitle">پادکست‌سازی</div>
+        <p class="pdesc">ضبط، تدوین و آماده‌سازی محتوای پادکست با نرم‌افزار حرفه‌ای</p>
+        <span class="ptag">Adobe Audition</span><span class="ptag">Editing</span>
+      </div>
+      <div class="proj">
+        <div class="pico pw">🗄️</div>
+        <div class="ptitle">سیستم‌های PHP</div>
+        <p class="pdesc">طراحی سیستم‌های مدیریت محتوا و پایگاه داده با PHP و MySQL</p>
+        <span class="ptag">PHP</span><span class="ptag">MySQL</span>
+      </div>
+      <div class="proj">
+        <div class="pico pg">🎨</div>
+        <div class="ptitle">طراحی گرافیک</div>
+        <p class="pdesc">طراحی پوستر، لوگو و آثار گرافیکی با نرم‌افزار Adobe Photoshop</p>
+        <span class="ptag">Photoshop</span><span class="ptag">Design</span>
+      </div>
+      <div class="proj">
+        <div class="pico pm">🎭</div>
+        <div class="ptitle">نمایشنامه‌نویسی</div>
+        <p class="pdesc">نگارش و کارگردانی نمایشنامه با موضوعات اجتماعی و بهداشت روان</p>
+        <span class="ptag">نویسندگی</span><span class="ptag">کارگردانی</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="d">
+
+<!-- Languages -->
+<section id="languages">
+  <div class="container">
+    <div class="sh fi">
+      <div class="stag">// زبان‌ها</div>
+      <h2 class="stitle">زبان‌ها</h2>
+      <div class="sline"></div>
+    </div>
+    <div class="lgrid fi">
+      <div class="lcard">
+        <div class="lname">فارسی</div>
+        <div class="llvl">زبان مادری</div>
+        <div class="ldots" id="lfa"></div>
+      </div>
+      <div class="lcard">
+        <div class="lname">English</div>
+        <div class="llvl">سطح متوسط رو به بالا (B1)</div>
+        <div class="ldots" id="len"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <p style="margin-top:6px;font-size:.78rem">© ۱۴۰۴ — تمامی حقوق محفوظ است</p>
+</footer>
+
+<script>
+// Nav scroll
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('s',scrollY>50));
+
+// Typed text
+const titles=['برنامه‌نویس وب','طراح موشن‌گرافیک','تدوین‌گر عکس و فیلم','طراح گرافیک','نویسنده و خلاق'];
+let ti=0,ci=0,del=false;
+const tel=document.getElementById('typed');
+function type(){
+  const t=titles[ti];
+  del?tel.textContent=t.substring(0,ci--):tel.textContent=t.substring(0,ci++);
+  if(!del&&ci>t.length){del=true;setTimeout(type,1800);return}
+  if(del&&ci<0){del=false;ti=(ti+1)%titles.length}
+  setTimeout(type,del?55:105);
+}
+setTimeout(type,900);
+
+// Scroll observer
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('v');
+      e.target.querySelectorAll('.sfill[data-w]').forEach(b=>{
+        setTimeout(()=>{b.style.width=b.dataset.w+'%'},200);
+      });
+      obs.unobserve(e.target);
+    }
+  });
+},{threshold:.12});
+document.querySelectorAll('.fi').forEach(el=>obs.observe(el));
+
+// Timeline observer
+const tobs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const items=e.target.querySelectorAll('.tli');
+      items.forEach((item,i)=>setTimeout(()=>item.classList.add('v'),i*220));
+      tobs.unobserve(e.target);
+    }
+  });
+},{threshold:.1});
+document.querySelectorAll('.card').forEach(c=>{if(c.querySelector('.tli'))tobs.observe(c)});
+
+// Language dots
+function dots(id,n,total=10){
+  const el=document.getElementById(id);
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='ldot'+(i<n?' f':'');
+    el.appendChild(d);
+  }
+}
+dots('lfa',10);
+dots('len',6);
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'})}
+  });
+});
+</script>
+</body>
+</html>
