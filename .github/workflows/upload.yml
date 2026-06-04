@@ -1,0 +1,25 @@
+name: Upload to Hosting
+
+on:
+  workflow_dispatch:
+    inputs:
+      file_url:
+        description: 'Direct download link'
+        required: true
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download file
+        run: |
+          FILENAME=$(basename "${{ github.event.inputs.file_url }}" | cut -d'?' -f1)
+          echo "FILENAME=$FILENAME" >> $GITHUB_ENV
+          curl -L "${{ github.event.inputs.file_url }}" -o "$FILENAME"
+
+      - name: Upload to FTP
+        run: |
+          curl -T "${{ env.FILENAME }}" \
+            "ftp://${{ secrets.FTP_HOST }}/htdocs/uploads/${{ env.FILENAME }}" \
+            --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
+            --ftp-create-dirs
