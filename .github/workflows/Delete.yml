@@ -17,6 +17,9 @@ jobs:
           STRIPPED="${ORIGINAL%.html}"
           echo "STRIPPED=$STRIPPED" >> $GITHUB_ENV
 
+      - name: Install lftp
+        run: sudo apt-get install -y lftp
+
       - name: Delete from FTP
         run: |
           lftp -u "${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }}" \
