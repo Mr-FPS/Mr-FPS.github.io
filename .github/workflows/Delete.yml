@@ -24,6 +24,6 @@ jobs:
         run: |
           lftp -u "${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }}" \
             "${{ secrets.FTP_HOST }}" <<EOF
-          rm /public_html/uploads/${{ env.STRIPPED }}
+          rm /htdocs/uploads/${{ env.STRIPPED }}
           bye
           EOF
