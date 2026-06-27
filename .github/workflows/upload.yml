@@ -3,75 +3,106 @@ on:
   workflow_dispatch:
     inputs:
       file_url:
-        description: 'Direct download link'
+        description: 'Direct link or Google Drive share link'
         required: true
 
 jobs:
   upload:
     runs-on: ubuntu-latest
     steps:
-      - name: Detect file type
+      - name: Detect file info
         run: |
           FILE_URL="${{ github.event.inputs.file_url }}"
-          FILENAME=$(basename "$FILE_URL" | cut -d'?' -f1)
+
+          if echo "$FILE_URL" | grep -q "drive.google.com"; then
+            if echo "$FILE_URL" | grep -q '/d/'; then
+              FILE_ID=$(echo "$FILE_URL" | grep -oP '(?<=/d/)[^/?]+')
+            else
+              FILE_ID=$(echo "$FILE_URL" | grep -oP '(?<=id=)[^&]+')
+            fi
+            GDRIVE_DL="https://drive.usercontent.google.com/download?id=${FILE_ID}&export=download&confirm=t"
+            FILENAME=$(curl -sI "$GDRIVE_DL" | grep -i 'content-disposition' | grep -oP 'filename="?\K[^";]+' | head -1 | tr -d '\r')
+            [ -z "$FILENAME" ] && FILENAME="gdrive_$(date +%s).mp4"
+            echo "IS_GDRIVE=true" >> $GITHUB_ENV
+            echo "GDRIVE_DL=$GDRIVE_DL" >> $GITHUB_ENV
+          else
+            FILENAME=$(basename "$FILE_URL" | cut -d'?' -f1)
+            echo "IS_GDRIVE=false" >> $GITHUB_ENV
+          fi
+
           EXT=$(echo "${FILENAME##*.}" | tr '[:upper:]' '[:lower:]')
+          echo "mp4 mkv avi mov wmv flv webm m4v mpg mpeg 3gp ts m2ts" | grep -qw "$EXT" \
+            && echo "IS_VIDEO=true" >> $GITHUB_ENV \
+            || echo "IS_VIDEO=false" >> $GITHUB_ENV
+
           echo "FILENAME=$FILENAME" >> $GITHUB_ENV
-          if echo "mp4 mkv avi mov wmv flv webm m4v mpg mpeg 3gp ts m2ts" | grep -qw "$EXT"; then
-            echo "IS_VIDEO=true" >> $GITHUB_ENV
-          else
-            echo "IS_VIDEO=false" >> $GITHUB_ENV
-          fi
 
-      - name: Create and upload Video.html
-        if: env.IS_VIDEO == 'true'
+      - name: Download from Google Drive
+        if: env.IS_GDRIVE == 'true'
         run: |
-          FILE_URL="${{ github.event.inputs.file_url }}"
-          cat > Video.html << HTMLEOF
-          <!DOCTYPE html>
-          <html>
-          <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width,initial-scale=1">
-          <style>
-          *{margin:0;padding:0;box-sizing:border-box}
-          body{background:#000}
-          video{width:100%;display:block}
-          </style>
-          </head>
-          <body>
-          <video controls playsinline>
-          <source src="${FILE_URL}">
-          </video>
-          </body>
-          </html>
-          HTMLEOF
+          curl -L "${{ env.GDRIVE_DL }}" -o "${{ env.FILENAME }}"
+          echo "Downloaded: ${{ env.FILENAME }} ($(du -h "${{ env.FILENAME }}" | cut -f1))"
 
-          curl -v -T "Video.html" \
-            "ftp://${{ secrets.FTP_HOST }}/htdocs/Video.html" \
-            --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 | tee ftp_log.txt
-
-          if grep -q "226" ftp_log.txt; then
-            echo "✅ Video.html uploaded"
-          else
-            echo "❌ Upload failed"
-            cat ftp_log.txt
-            exit 1
-          fi
-
-      - name: Download and upload regular file
-        if: env.IS_VIDEO == 'false'
+      - name: Download direct non-video file
+        if: env.IS_GDRIVE == 'false' && env.IS_VIDEO == 'false'
         run: |
           curl -L "${{ github.event.inputs.file_url }}" -o "${{ env.FILENAME }}"
 
+      - name: Upload file to FTP
+        if: env.IS_GDRIVE == 'true' || env.IS_VIDEO == 'false'
+        run: |
           curl -v -T "${{ env.FILENAME }}" \
             "ftp://${{ secrets.FTP_HOST }}/htdocs/uploads/${{ env.FILENAME }}" \
             --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
             --ftp-create-dirs 2>&1 | tee ftp_log.txt
 
           if grep -q "226" ftp_log.txt; then
-            echo "✅ File uploaded"
+            echo "✅ File uploaded: ${{ env.FILENAME }}"
           else
             echo "❌ Upload failed"
             cat ftp_log.txt
+            exit 1
+          fi
+
+      - name: Create and upload Video.html
+        if: env.IS_VIDEO == 'true'
+        run: |
+          if [ "${{ env.IS_GDRIVE }}" == "true" ]; then
+            VIDEO_SRC="${{ secrets.SITE_URL }}/uploads/${{ env.FILENAME }}"
+          else
+            VIDEO_SRC="${{ github.event.inputs.file_url }}"
+          fi
+
+          cat > Video.html << 'HTMLEOF'
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000}
+video{width:100%;display:block}
+</style>
+</head>
+<body>
+<video controls playsinline>
+<source src="__VIDEO_SRC__">
+</video>
+</body>
+</html>
+HTMLEOF
+
+          sed -i "s|__VIDEO_SRC__|${VIDEO_SRC}|g" Video.html
+
+          curl -v -T "Video.html" \
+            "ftp://${{ secrets.FTP_HOST }}/htdocs/Video.html" \
+            --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 | tee ftp_log_html.txt
+
+          if grep -q "226" ftp_log_html.txt; then
+            echo "✅ Video.html uploaded"
+          else
+            echo "❌ Video.html upload failed"
+            cat ftp_log_html.txt
             exit 1
           fi
