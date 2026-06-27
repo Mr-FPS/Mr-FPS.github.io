@@ -1,12 +1,10 @@
 name: Upload to Hosting
-
 on:
   workflow_dispatch:
     inputs:
       file_url:
         description: 'Direct download link'
         required: true
-
 jobs:
   upload:
     runs-on: ubuntu-latest
@@ -19,7 +17,15 @@ jobs:
 
       - name: Upload to FTP
         run: |
-          curl -T "${{ env.FILENAME }}" \
+          curl -v -T "${{ env.FILENAME }}" \
             "ftp://${{ secrets.FTP_HOST }}/htdocs/uploads/${{ env.FILENAME }}" \
             --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
-            --ftp-create-dirs
+            --ftp-create-dirs 2>&1 | tee ftp_log.txt
+
+          if grep -q "226" ftp_log.txt; then
+            echo "✅ Upload confirmed by server"
+          else
+            echo "❌ No 226 Transfer Complete received"
+            cat ftp_log.txt
+            exit 1
+          fi
