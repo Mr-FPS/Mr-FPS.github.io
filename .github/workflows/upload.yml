@@ -5,27 +5,73 @@ on:
       file_url:
         description: 'Direct download link'
         required: true
+
 jobs:
   upload:
     runs-on: ubuntu-latest
     steps:
-      - name: Download file
+      - name: Detect file type
         run: |
-          FILENAME=$(basename "${{ github.event.inputs.file_url }}" | cut -d'?' -f1)
+          FILE_URL="${{ github.event.inputs.file_url }}"
+          FILENAME=$(basename "$FILE_URL" | cut -d'?' -f1)
+          EXT=$(echo "${FILENAME##*.}" | tr '[:upper:]' '[:lower:]')
           echo "FILENAME=$FILENAME" >> $GITHUB_ENV
-          curl -L "${{ github.event.inputs.file_url }}" -o "$FILENAME"
+          if echo "mp4 mkv avi mov wmv flv webm m4v mpg mpeg 3gp ts m2ts" | grep -qw "$EXT"; then
+            echo "IS_VIDEO=true" >> $GITHUB_ENV
+          else
+            echo "IS_VIDEO=false" >> $GITHUB_ENV
+          fi
 
-      - name: Upload to FTP
+      - name: Create and upload Video.html
+        if: env.IS_VIDEO == 'true'
         run: |
+          FILE_URL="${{ github.event.inputs.file_url }}"
+          cat > Video.html << HTMLEOF
+          <!DOCTYPE html>
+          <html>
+          <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width,initial-scale=1">
+          <style>
+          *{margin:0;padding:0;box-sizing:border-box}
+          body{background:#000}
+          video{width:100%;display:block}
+          </style>
+          </head>
+          <body>
+          <video controls playsinline>
+          <source src="${FILE_URL}">
+          </video>
+          </body>
+          </html>
+          HTMLEOF
+
+          curl -v -T "Video.html" \
+            "ftp://${{ secrets.FTP_HOST }}/htdocs/Video.html" \
+            --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 | tee ftp_log.txt
+
+          if grep -q "226" ftp_log.txt; then
+            echo "✅ Video.html uploaded"
+          else
+            echo "❌ Upload failed"
+            cat ftp_log.txt
+            exit 1
+          fi
+
+      - name: Download and upload regular file
+        if: env.IS_VIDEO == 'false'
+        run: |
+          curl -L "${{ github.event.inputs.file_url }}" -o "${{ env.FILENAME }}"
+
           curl -v -T "${{ env.FILENAME }}" \
             "ftp://${{ secrets.FTP_HOST }}/htdocs/uploads/${{ env.FILENAME }}" \
             --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
             --ftp-create-dirs 2>&1 | tee ftp_log.txt
 
           if grep -q "226" ftp_log.txt; then
-            echo "✅ Upload confirmed by server"
+            echo "✅ File uploaded"
           else
-            echo "❌ No 226 Transfer Complete received"
+            echo "❌ Upload failed"
             cat ftp_log.txt
             exit 1
           fi
